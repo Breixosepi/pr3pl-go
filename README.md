@@ -31,7 +31,7 @@ La principal razon de este proyecto es eliminar la notación matemática rígida
 * *Clásico (C++):* `(if (lt (x) (y)) (100) (200))`
 * *Moderno (Go):* `if x < y then 100 else 200`
 
-**5. Funciones y Bloques Locales **
+**5. Funciones y Bloques Locales**
 * *Clásico (C++):* `(let (pow) (fun (cuadrado) (x) (mult (x) (x))) (call (pow) (8)))`
 * *Moderno (Go):* `let pow = fun cuadrado(x) = x * x in pow(8) end`
 
