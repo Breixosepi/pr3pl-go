@@ -1,0 +1,44 @@
+/* 1. Medicion de longitud */
+
+fun length(l) = 
+    if isunit(l) then 0 else 1 + length(snd(l))
+
+/* 2. Transformacion (Map) */
+
+fun doubleElements(l) = 
+    if isunit(l) then () 
+    else (fst(l) * 2, doubleElements(snd(l)))
+
+/* 3. filtro y acumulacion */
+
+fun sumIfGreaterThan(p) = 
+    let l = fst(p) in
+        let limit = snd(p) in
+            if isunit(l) then 0 
+            else 
+                let current = fst(l) in
+                    if current > limit then 
+                        current + sumIfGreaterThan((snd(l), limit))
+                    else 
+                        sumIfGreaterThan((snd(l), limit))
+                end
+        end
+    end
+
+/* 4. Ejecucion */
+
+val myData = [5, 10, 15, 20] 
+val searchLimit = 12        
+
+val listLength = length(myData)                               /* 4 */
+val newList = doubleElements(myData)                          /* [10, 20, 30, 40] */
+val filteredSum = sumIfGreaterThan((myData, searchLimit))     /* 35 */
+
+/* 5. Verificacion final */
+
+val check = (listLength == 4) and (filteredSum == 35)
+
+if check then 
+    fst(snd(newList)) + filteredSum     /* 20 + 35 = 55 */
+else 
+    0

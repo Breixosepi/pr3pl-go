@@ -1,0 +1,34 @@
+/* 1. operaciones basicas */
+
+fun square(x) = x * x
+fun double(x) = x * 2
+
+/* 2. funcion mapList
+   recibe un pair p = (function, list) */
+
+fun mapList(p) =
+    let f = fst(p) in
+        let l = snd(p) in
+            if isunit(l) then 
+                ()
+            else
+                let head = fst(l) in
+                    let tail = snd(l) in
+                        (f(head), mapList((f, tail)))
+                    end
+                end
+        end
+    end
+
+/* 3. Ejecucion */
+
+val numbers = [1, 2, 3, 4]
+val squaredNumbers = mapList((square, numbers))       /* [1, 4, 9, 16] */
+val doubledNumbers = mapList((double, numbers))       /* [2, 4, 6, 8] */
+
+/* 4. Verificacion final */
+
+val lastSquare = fst(snd(snd(snd(squaredNumbers))))   /* 16 */
+val secondDouble = fst(snd(doubledNumbers))           /* 4 */
+
+lastSquare + secondDouble                             /* 20 */

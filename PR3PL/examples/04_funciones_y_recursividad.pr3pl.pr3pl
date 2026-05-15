@@ -1,0 +1,30 @@
+/* 1. Funciones */
+
+val doubleValue = fun f(x) = x * 2
+
+/* 2. Closures */
+
+val offset = 100
+val adder = fun s(n) = n + offset
+
+/* 3. Recursion simple (Factorial) */
+
+fun factorial(n) = 
+    if n == 0 then 1 else n * factorial(n - 1)
+
+/* 4. Recursion Doble (Fibonacci) */
+
+fun fib(n) = 
+    if n < 2 then n else fib(n - 1) + fib(n - 2)
+
+/* 5. Casos de prueba */
+val r1 = doubleValue(25)   /* 50 */
+val r2 = adder(50)         /* 150 */
+val r3 = factorial(5)      /* 120 */
+val r4 = fib(8)            /* 21 */
+
+/* 6. Verificacion Final */
+
+val finalResult = r1 + r2 + r3 + r4  /* 50 + 150 + 120 + 21 = 341 */
+
+if finalResult == 341 then finalResult else 0

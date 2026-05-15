@@ -1,0 +1,80 @@
+/* 1. Concatenación de listas */
+
+fun append(p) =
+    let l1 = fst(p) in
+        let l2 = snd(p) in
+            if isunit(l1) then 
+                l2
+            else 
+                (fst(l1), append((snd(l1), l2)))
+        end
+    end
+
+/* 2. Filtro: Extrae los menores que el pivote */
+
+fun filterLess(p) =
+    let l = fst(p) in
+        let pivot = snd(p) in
+            if isunit(l) then ()
+            else
+                let head = fst(l) in
+                    let tail = snd(l) in
+                        if head < pivot then
+                            (head, filterLess((tail, pivot)))
+                        else
+                            filterLess((tail, pivot))
+                    end
+                end
+        end
+    end
+
+/* 3. Filtro: Extrae los mayores que el pivote */
+
+fun filterGreater(p) =
+    let l = fst(p) in
+        let pivot = snd(p) in
+            if isunit(l) then ()
+            else
+                let head = fst(l) in
+                    let tail = snd(l) in
+                        if head > pivot then
+                            (head, filterGreater((tail, pivot)))
+                        else
+                            filterGreater((tail, pivot))
+                    end
+                end
+        end
+    end
+
+/* 4. Algoritmo Quicksort Principal */
+
+fun quicksort(l) =
+    if isunit(l) then ()
+    else
+        let pivot = fst(l) in
+            let tail = snd(l) in
+                let left = filterLess((tail, pivot)) in
+                    let right = filterGreater((tail, pivot)) in
+                        
+                        let sortedLeft = quicksort(left) in
+                            let sortedRight = quicksort(right) in
+                                append((sortedLeft, (pivot, sortedRight)))
+                                
+                            end
+                        end
+                    end
+                end
+            end
+        end
+
+/* 5. Ejecución en lista desordenada */
+
+val unsorted = [20, 5, 15, 10, 25]
+val sorted = quicksort(unsorted) /* Debería resultar en [5, 10, 15, 20, 25] */
+
+/* 6. Verificación Final */
+
+
+val first = fst(sorted)               /* 5 */
+val second = fst(snd(sorted))          /* 10 */
+first + second                          /*  15 */
