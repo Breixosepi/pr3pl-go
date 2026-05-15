@@ -44,6 +44,7 @@ func lexTopLevel(l *Lexer) stateFn {
 			l.emit(token.GT)
 		case '!':
 			if l.peek() == '=' {
+				l.next()
 				l.emit(token.NEQ)
 			} else {
 				l.emit(token.ILLEGAL)
