@@ -1,0 +1,43 @@
+/* 1. funciones bases */
+
+fun square(x) = x * x
+fun addTen(x) = x + 10
+
+/* 2. Currying
+   Devuelve una nueva funcion que recuerda el 'factor' */
+
+fun makeMultiplier(factor) =
+    let multiplier = fun m(x) = x * factor in
+        multiplier
+    end
+
+/* 3. Funcion de composicion 
+   Recibe p = (function1, function2)
+   Retorna una nueva funcion del tipo f(g(x)) 
+*/
+
+fun compose(p) =
+    let f = fst(p) in
+        let g = snd(p) in
+            let composed = fun c(x) = f(g(x)) in
+                composed
+            end
+        end
+    end
+
+/* 4. Ejecucion */
+
+val timesThree = makeMultiplier(3)
+val timesFive = makeMultiplier(5)
+val squareOfMultiple = compose((square, timesThree))
+val multipleOfSquare = compose((timesFive, square))
+
+/* 5. Verificacion */
+
+val r1 = timesThree(5)         /* 15 */
+val r2 = timesFive(2)          /* 10 */
+val r3 = squareOfMultiple(4)   /* timesThree(4) = 12 -> square(12) = 144 */
+val r4 = multipleOfSquare(3)   /* square(3) = 9 -> timesFive(9) = 45 */
+val r5 = addTen(r1)            /* 15 + 10 = 25 */
+
+r1 + r2 + r3 + r4 + r5 /* 15 + 10 + 144 + 45 + 25 = 239 */

@@ -1,0 +1,67 @@
+/* 1. Verificacion de puentes */
+
+fun hasEdge(p) =
+    let graph = fst(p) in
+        let targetEdge = snd(p) in
+            if isunit(graph) then
+                0 
+            else
+                let currentEdge = fst(graph) in
+                    let tail = snd(graph) in
+                        if (fst(currentEdge) == fst(targetEdge)) and (snd(currentEdge) == snd(targetEdge)) then
+                            1
+                        else
+                            hasEdge((tail, targetEdge))
+                    end 
+                end 
+        end 
+    end 
+
+/* 2. Contar los grados de salida */
+
+fun outDegree(p) =
+    let graph = fst(p) in
+        let node = snd(p) in
+            if isunit(graph) then
+                0
+            else
+                let currentEdge = fst(graph) in
+                    let tail = snd(graph) in
+                        if fst(currentEdge) == node then
+                            1 + outDegree((tail, node))
+                        else
+                            outDegree((tail, node))
+                    end 
+                end 
+        end 
+    end 
+
+/* 3. Construccion del grafo */
+
+/* usaremos este grafo de ejemplo
+
+   1 -> 2
+   1 -> 3
+   2 -> 4
+   3 -> 4
+   4 -> 1
+*/
+
+val e1 = (1, 2)
+val e2 = (1, 3)
+val e3 = (2, 4)
+val e4 = (3, 4)
+val e5 = (4, 1)
+
+val graph = [e1, e2, e3, e4, e5]
+
+/* 4. Ejecucion */
+
+val check12 = hasEdge((graph, (1, 2))) /* existe un puente (1) */
+val check14 = hasEdge((graph, (1, 4))) /* no existe un puente directo (0) */
+val deg1 = outDegree((graph, 1))       /* el nodo 1 tiene 2 aristas salientes (hacia 2 y 3)  (2) */
+val deg4 = outDegree((graph, 4))       /* el nodo 4 tiene 1 arista saliente (hacia 1)  (1) */
+
+/* 5. Verificacion */
+
+check12 + check14 + deg1 + deg4 /* 1 + 0 + 2 + 1 = 4 */

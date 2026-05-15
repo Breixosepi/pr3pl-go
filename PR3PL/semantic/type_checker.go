@@ -294,7 +294,7 @@ func typeCheckFstExpression(node *ast.FstExpression, env *Environment) (Type, er
 
 	pair, ok := argType.(*PairType)
 	if !ok {
-		if argType.Signature() == "int" {
+		if argType.Signature() == "int" || argType.Signature() == "unit" {
 			return &IntType{}, nil
 		}
 		return nil, fmt.Errorf("TypeError: el operador fst requiere un operando PairType, se obtuvo %s", argType.Signature())
@@ -311,7 +311,7 @@ func typeCheckSndExpression(node *ast.SndExpression, env *Environment) (Type, er
 
 	pair, ok := argType.(*PairType)
 	if !ok {
-		if argType.Signature() == "int" {
+		if argType.Signature() == "int" || argType.Signature() == "unit" {
 			return &IntType{}, nil
 		}
 		return nil, fmt.Errorf("TypeError: el operador snd requiere un operando PairType, se obtuvo %s", argType.Signature())

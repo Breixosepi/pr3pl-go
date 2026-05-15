@@ -1,0 +1,75 @@
+/* 1. Funcion de insert */
+
+fun insert(p) =
+    let v = fst(p) in
+        let tree = snd(p) in
+            if isunit(tree) then
+                (v, ((), ())) 
+            else
+                let nodeVal = fst(tree) in
+                    let branches = snd(tree) in
+                        let left = fst(branches) in
+                            let right = snd(branches) in
+                                if v < nodeVal then
+                                    (nodeVal, (insert((v, left)), right))
+                                else
+                                    if v > nodeVal then
+                                        (nodeVal, (left, insert((v, right))))
+                                    else
+                                        tree 
+                            end 
+                        end 
+                    end 
+                end 
+        end 
+    end 
+
+/* 2. Funcion de busqueda */
+
+fun search(p) =
+    let v = fst(p) in
+        let tree = snd(p) in
+            if isunit(tree) then
+                0
+            else
+                let nodeVal = fst(tree) in
+                    let branches = snd(tree) in
+                        if v == nodeVal then
+                            1
+                        else
+                            if v < nodeVal then
+                                search((v, fst(branches)))
+                            else
+                                search((v, snd(branches)))
+                    end 
+                end 
+        end 
+    end 
+
+/* 3. Construccion del arbol
+
+   Usaremos el siguiente arbol para el ejemplo 
+
+          10
+         /  \
+        5    15
+       / \
+      2   7
+*/
+
+val t0 = ()
+val t1 = insert((10, t0))
+val t2 = insert((5, t1))
+val t3 = insert((15, t2))
+val t4 = insert((2, t3))
+val t5 = insert((7, t4))
+
+/* 4. Ejecucion de la busqueda */
+
+val found7 = search((7, t5))   /* return 1 (true) */
+val found20 = search((20, t5)) /* return 0 (false) */
+val found10 = search((10,t5))   /* return 1 (true) */
+
+/* 5. Final Verification */
+
+found7 + found20 + found10    /* 1 + 0 + 1 = 2 */
