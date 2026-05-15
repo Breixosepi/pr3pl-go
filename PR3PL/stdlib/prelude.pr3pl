@@ -1,0 +1,31 @@
+/* --- PR3PL Standard Library --- */
+
+fun length(l) = if isunit(l) then 0 else 1 + length(snd(l))
+
+fun append(p) =
+    let l1 = fst(p) in
+        let l2 = snd(p) in
+            if isunit(l1) then l2
+            else (fst(l1), append((snd(l1), l2)))
+        end
+    end
+
+fun map(p) =
+    let f = fst(p) in
+        let l = snd(p) in
+            if isunit(l) then ()
+            else (f(fst(l)), map((f, snd(l))))
+        end
+    end
+
+fun filter(p) =
+    let f = fst(p) in
+        let l = snd(p) in
+            if isunit(l) then ()
+            else
+                let x = fst(l) in
+                    if f(x) then (x, filter((f, snd(l))))
+                    else filter((f, snd(l)))
+                end
+        end
+    end

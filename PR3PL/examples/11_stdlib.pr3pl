@@ -1,0 +1,28 @@
+/* 1. definimos unas operaciones basicas */
+
+val data = [1, 2, 3, 4, 5]
+
+fun isOdd(n) = (n / 2) * 2 != n
+fun double(n) = n * 2
+
+/* 2. usamos filter y map directamente */
+
+/* el filtro nos deja fuera los siguientes numeros [1, 3, 5] */
+
+val oddNumbers = filter((isOdd, data))
+
+/* duplicamos el valor de dichos numeros [2, 6, 10] */
+
+val doubledOdds = map((double, oddNumbers))
+
+/* obtenemos el tamanio de dicha lista */
+
+val finalSize = length(doubledOdds)
+
+/* 3. Verification */
+
+val firstVal = fst(doubledOdds)                  /* 2 */
+val secondVal = fst(snd(doubledOdds))            /* 6 */
+val thirdVal = fst(snd(snd(doubledOdds)))        /* 10 */
+
+firstVal + secondVal + thirdVal + finalSize     /* 2 + 6 + 10 + 3 = 21 */
