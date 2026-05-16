@@ -1,0 +1,52 @@
+/* 1. Función para generar una lista continua del 'start' al 'fin' */
+
+fun range(p) =
+    let start = fst(p) in
+        let fin = snd(p) in
+            if start > fin then 
+                ()
+            else 
+                (start, range((start + 1, fin)))
+        end
+    end
+
+/* 2. Función auxiliar matemática: retorna true(1) si 'x' NO es divisible por 'd' */
+
+fun notDivisible(p) =
+    let x = fst(p) in
+        let d = snd(p) in
+            (x % d) != 0
+        end
+    end
+
+/* 3. La criba recursiva */
+
+fun sieve(l) =
+    if isunit(l) then 
+        ()
+    else
+        let prime = fst(l) in
+            let tail = snd(l) in
+                let filterCondition = fun f(x) = notDivisible((x, prime)) in
+                    let filteredTail = filter((filterCondition, tail)) in
+                        (prime, sieve(filteredTail))
+                    end
+                end
+            end
+        end
+
+/* 4. Buscar los números primos del 2 al 30 */
+
+val numbers = range((2, 30))
+val primes = sieve(numbers)  /* [2, 3, 5, 7, 11, 13, 17, 19, 23, 29] */
+
+/* 5. Verificación */
+
+val p1 = fst(primes)                            /* 2 */
+val p2 = fst(snd(primes))                       /* 3 */
+val p3 = fst(snd(snd(primes)))                  /* 5 */
+val p4 = fst(snd(snd(snd(primes))))             /* 7 */
+val p5 = fst(snd(snd(snd(snd(primes)))))        /* 11 */
+val p6 = fst(snd(snd(snd(snd(snd(primes))))))   /* 13 */
+
+p1 + p2 + p3 + p4 +p5 + p6      /*  41 */

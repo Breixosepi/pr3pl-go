@@ -1,0 +1,48 @@
+/* 1. Funcion auxiliar para concatenar dos listas de movimientos */
+
+fun appendLists(p) =
+    let l1 = fst(p) in
+        let l2 = snd(p) in
+            if isunit(l1) then
+                l2
+            else
+                (fst(l1), appendLists((snd(l1), l2)))
+        end
+    end
+
+/* 2. Funcion hanoi
+   Recibe (n, (source, (target, auxiliary))) 
+*/
+
+fun hanoi(p) =
+    let n = fst(p) in
+        let pegs = snd(p) in
+            let source = fst(pegs) in
+                let remainingPegs = snd(pegs) in
+                    let target = fst(remainingPegs) in
+                        let auxiliary = snd(remainingPegs) in
+                            if n == 0 then
+                                () 
+                            else
+                                let step1 = hanoi((n - 1, (source, (auxiliary, target)))) in
+                                    let step2 = ((source, target), ()) in
+                                        let step3 = hanoi((n - 1, (auxiliary, (target, source)))) in
+                                            appendLists((step1, appendLists((step2, step3))))
+                                        end
+                                    end
+                                end
+                            
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+/* 3. Hanoi para 3 discos */
+
+val moves = hanoi((3, (1, (3, 2))))  /* esto se lee como "mueve 3 discos desde el poste 1 hasta el poste 3 usando el poste 2 como auxiliar" */
+
+
+
+moves /* El resultado son los movimientos que se deberian hacer para cumplir el objetivo siendo (1,3) mover el disco del poste 1 al poste 3 */

@@ -1,0 +1,77 @@
+val emptyUnit = ()
+
+/* 1. FOLD RIGHT */
+
+fun foldr(p) =
+    let f = fst(p) in
+        let rest = snd(p) in
+            let acc = fst(rest) in
+                let list = snd(rest) in
+                    if isunit(list) then
+                        acc
+                    else
+                        let head = fst(list) in
+                            let tail = snd(list) in
+                                let recursiveAcc = foldr((f, (acc, tail))) in
+                                    f((head, recursiveAcc))
+                                end
+                            end
+                        end
+                end
+            end
+        end
+    end
+
+/* 2. FOLD LEFT */
+
+fun foldl(p) =
+    let f = fst(p) in
+        let rest = snd(p) in
+            let acc = fst(rest) in
+                let list = snd(rest) in
+                    if isunit(list) then
+                        acc
+                    else
+                        let head = fst(list) in
+                            let tail = snd(list) in
+                                let newAcc = f((acc, head)) in
+                                    foldl((f, (newAcc, tail)))
+                                end
+                            end
+                        end
+                end
+            end
+        end
+    end
+
+/* 3. FoldRight para evaluar un polinomio */
+
+val x = 4
+
+fun hornerStep(p) =
+    let coeff = fst(p) in
+        let accVal = snd(p) in
+            coeff + (x * accVal)
+        end
+    end
+
+val coefficients = (3, (5, (2, emptyUnit)))
+val resultRight = foldr((hornerStep, (0, coefficients)))
+
+/* 4. FoldLeft para invertir una lista */
+
+fun prependStep(p) =
+    let accVal = fst(p) in
+        let headVal = snd(p) in
+            (headVal, accVal)
+        end
+    end
+
+val normalList = (1, (2, (3, emptyUnit)))
+val reversedList = foldl((prependStep, (emptyUnit, normalList)))
+
+/* 5. Verificacion */
+
+val finalResult = (resultRight, reversedList)
+
+finalResult  /* (55, (3, (2, (1, ())))) */

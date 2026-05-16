@@ -65,11 +65,14 @@ func ToOriginalPR3PL(node ast.Node) string {
 
 		switch n.Operator {
 
-		case "+", "*", "/", "%":
+		case "+", "*", "/":
 			return fmt.Sprintf("(%s %s %s)", n.Operator, l, r)
 
 		case "-":
 			return fmt.Sprintf("(+ %s (- %s))", l, r)
+
+		case "%":
+			return fmt.Sprintf("(+ %s (- (* (/ %s %s) %s)))", l, l, r, r)
 
 		case "<":
 			return fmt.Sprintf("(iflesser %s %s (1) (0))", l, r)
