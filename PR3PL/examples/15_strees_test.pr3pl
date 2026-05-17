@@ -1,0 +1,21 @@
+/* 1. Potencias  */
+
+val monster1 = 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2 
+
+/* 2. Cálculo exagerado */
+
+val centuryMs = 1000 * 60 * 60 * 24 * 365 * 75 + 1000 * 60 * 60 * 24 * 366 * 25
+
+/* 3. arbol */
+
+val deepNest = (((((((((10 + 10) * 2) - 5) * 3) / 2) + 100) * 4) - 50) * 2)
+
+/* 4. Operaciones cruzadas  */
+
+val algebra = (1000 * 1000 / 2) + (500 * 500 / 2) - (100 * 100) + (10 * 10 * 10 * 10)
+
+/* 5. Ejecucion final */
+
+val finalResult = monster1 + centuryMs + deepNest + algebra
+
+finalResult

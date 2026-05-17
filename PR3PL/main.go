@@ -10,6 +10,7 @@ import (
 	"pr3pl/evaluator"
 	"pr3pl/lexer"
 	"pr3pl/object"
+	"pr3pl/optimizer"
 	"pr3pl/parser"
 	"pr3pl/repl"
 	"pr3pl/semantic"
@@ -62,6 +63,8 @@ func runSource(input string) {
 		return
 	}
 
+	program = optimizer.Optimize(program).(*ast.Program)
+
 	var originalCode string
 	if preludeAST != nil {
 		originalCode += transpiler.ToOriginalPR3PL(preludeAST) + "\n"
@@ -81,11 +84,16 @@ func runSource(input string) {
 		fmt.Printf("%sType error: %s%s\n", ColorRed, err, ColorReset)
 		return
 	}
+	// startTime := time.Now()
 
 	result := evaluator.Eval(program, dynamicEnv)
+
+	// duration := time.Since(startTime)
+
 	if result != nil {
 		fmt.Printf("%sType: %s%s\n", ColorYellow, typeResult.Signature(), ColorReset)
 		fmt.Printf("%sResult: %s%s\n\n", ColorBlue, result.Inspect(), ColorReset)
+		// fmt.Printf("%sExecution time: %s%s\n\n", ColorGreen, duration, ColorReset)
 	}
 }
 
