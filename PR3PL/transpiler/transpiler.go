@@ -3,21 +3,30 @@ package transpiler
 import (
 	"fmt"
 	"pr3pl/ast"
+	"strings"
 )
 
+func indent(depth int) string {
+	return strings.Repeat("    ", depth)
+}
+
 func ToOriginalPR3PL(node ast.Node) string {
+	return toPR3PL(node, 0)
+}
+
+func toPR3PL(node ast.Node, depth int) string {
 
 	switch n := node.(type) {
 
 	case *ast.Program:
 		var out string
 		for _, stmt := range n.Statements {
-			out += ToOriginalPR3PL(stmt) + "\n"
+			out += toPR3PL(stmt, depth) + "\n\n"
 		}
-		return out
+		return strings.TrimSpace(out)
 
 	case *ast.ExpressionStatement:
-		return ToOriginalPR3PL(n.Expression)
+		return toPR3PL(n.Expression, depth)
 
 	case *ast.IntegerLiteral:
 		return fmt.Sprintf("(%d)", n.Value)
@@ -27,86 +36,81 @@ func ToOriginalPR3PL(node ast.Node) string {
 
 	case *ast.ValStatement:
 		if fn, ok := n.Value.(*ast.FunctionLiteral); ok {
-			return fmt.Sprintf("(fun (%s) (%s) %s)",
-				n.Name.Value, fn.Parameter.Value, ToOriginalPR3PL(fn.Body))
+			return fmt.Sprintf("(fun (%s) (%s)\n%s%s)",
+				n.Name.Value, fn.Parameter.Value, indent(depth+1), toPR3PL(fn.Body, depth+1))
 		}
-		return fmt.Sprintf("(val (%s) %s)", n.Name.Value, ToOriginalPR3PL(n.Value))
+		return fmt.Sprintf("(val (%s)\n%s%s)", n.Name.Value, indent(depth+1), toPR3PL(n.Value, depth+1))
 
 	case *ast.LetExpression:
-		return fmt.Sprintf("(let (%s) %s %s)",
-			n.Name.Value, ToOriginalPR3PL(n.Value), ToOriginalPR3PL(n.Body))
+		return fmt.Sprintf("(let (%s)\n%s%s\n%s%s)",
+			n.Name.Value,
+			indent(depth+1), toPR3PL(n.Value, depth+1),
+			indent(depth+1), toPR3PL(n.Body, depth+1))
 
 	case *ast.FunctionLiteral:
 		name := "anon"
 		if n.Name != nil {
 			name = n.Name.Value
 		}
-		return fmt.Sprintf("(fun (%s) (%s) %s)",
-			name, n.Parameter.Value, ToOriginalPR3PL(n.Body))
+		return fmt.Sprintf("(fun (%s) (%s)\n%s%s)",
+			name, n.Parameter.Value, indent(depth+1), toPR3PL(n.Body, depth+1))
 
 	case *ast.CallExpression:
 		return fmt.Sprintf("(call (%s) %s)",
-			n.Function.String(), ToOriginalPR3PL(n.Argument))
+			n.Function.String(), toPR3PL(n.Argument, depth))
 
 	case *ast.PrefixExpression:
 		switch n.Operator {
-
 		case "-":
-			return fmt.Sprintf("(- %s)", ToOriginalPR3PL(n.Right))
-
+			return fmt.Sprintf("(- %s)", toPR3PL(n.Right, depth))
 		case "not":
-			return fmt.Sprintf("(iflesser (0) %s (0) (1))", ToOriginalPR3PL(n.Right))
+			return fmt.Sprintf("(iflesser (0) %s\n%s(0)\n%s(1))",
+				toPR3PL(n.Right, depth), indent(depth+1), indent(depth+1))
 		}
 
 	case *ast.InfixExpression:
-
-		l := ToOriginalPR3PL(n.Left)
-		r := ToOriginalPR3PL(n.Right)
+		l := toPR3PL(n.Left, depth)
+		r := toPR3PL(n.Right, depth)
 
 		switch n.Operator {
-
 		case "+", "*", "/":
 			return fmt.Sprintf("(%s %s %s)", n.Operator, l, r)
-
 		case "-":
 			return fmt.Sprintf("(+ %s (- %s))", l, r)
-
 		case "%":
 			return fmt.Sprintf("(+ %s (- (* (/ %s %s) %s)))", l, l, r, r)
-
 		case "<":
 			return fmt.Sprintf("(iflesser %s %s (1) (0))", l, r)
-
 		case ">":
 			return fmt.Sprintf("(iflesser %s %s (1) (0))", r, l)
-
 		case "==":
-			return fmt.Sprintf("(iflesser %s %s (0) (iflesser %s %s (0) (1)))", l, r, r, l)
-
+			return fmt.Sprintf("(iflesser %s %s\n%s(0)\n%s(iflesser %s %s (0) (1)))",
+				l, r, indent(depth+1), indent(depth+1), r, l)
 		case "!=":
-			return fmt.Sprintf("(iflesser %s %s (1) (iflesser %s %s (1) (0)))", l, r, r, l)
-
+			return fmt.Sprintf("(iflesser %s %s\n%s(1)\n%s(iflesser %s %s (1) (0)))",
+				l, r, indent(depth+1), indent(depth+1), r, l)
 		case "and":
-			return fmt.Sprintf("(iflesser (0) %s (iflesser (0) %s (1) (0)) (0))", l, r)
-
+			return fmt.Sprintf("(iflesser (0) %s\n%s(iflesser (0) %s (1) (0))\n%s(0))",
+				l, indent(depth+1), r, indent(depth+1))
 		case "or":
-			return fmt.Sprintf("(iflesser (0) %s (1) (iflesser (0) %s (1) (0)))", l, r)
+			return fmt.Sprintf("(iflesser (0) %s\n%s(1)\n%s(iflesser (0) %s (1) (0)))",
+				l, indent(depth+1), indent(depth+1), r)
 		}
 
 	case *ast.PairExpression:
-		return fmt.Sprintf("(pair %s %s)", ToOriginalPR3PL(n.Left), ToOriginalPR3PL(n.Right))
+		return fmt.Sprintf("(pair %s %s)", toPR3PL(n.Left, depth), toPR3PL(n.Right, depth))
 
 	case *ast.FstExpression:
-		return fmt.Sprintf("(fst %s)", ToOriginalPR3PL(n.Argument))
+		return fmt.Sprintf("(fst %s)", toPR3PL(n.Argument, depth))
 
 	case *ast.SndExpression:
-		return fmt.Sprintf("(snd %s)", ToOriginalPR3PL(n.Argument))
+		return fmt.Sprintf("(snd %s)", toPR3PL(n.Argument, depth))
 
 	case *ast.IsUnitExpression:
-		return fmt.Sprintf("(isunit %s)", ToOriginalPR3PL(n.Argument))
+		return fmt.Sprintf("(isunit %s)", toPR3PL(n.Argument, depth))
 
 	case *ast.IfExpression:
-		return toIfLesser(n)
+		return toIfLesser(n, depth)
 
 	case *ast.UnitLiteral:
 		return "()"
@@ -120,20 +124,21 @@ func ToOriginalPR3PL(node ast.Node) string {
 	return ""
 }
 
-func toIfLesser(n *ast.IfExpression) string {
-
+func toIfLesser(n *ast.IfExpression, depth int) string {
 	alt := "()"
-
 	if n.Alternative != nil {
-		alt = ToOriginalPR3PL(n.Alternative)
+		alt = toPR3PL(n.Alternative, depth+1)
 	}
 
 	if infix, ok := n.Condition.(*ast.InfixExpression); ok && infix.Operator == "<" {
-		return fmt.Sprintf("(iflesser %s %s %s %s)",
-			ToOriginalPR3PL(infix.Left), ToOriginalPR3PL(infix.Right),
-			ToOriginalPR3PL(n.Consequence), alt)
+		return fmt.Sprintf("(iflesser %s %s\n%s%s\n%s%s)",
+			toPR3PL(infix.Left, depth), toPR3PL(infix.Right, depth),
+			indent(depth+1), toPR3PL(n.Consequence, depth+1),
+			indent(depth+1), alt)
 	}
 
-	return fmt.Sprintf("(iflesser (0) %s %s %s)",
-		ToOriginalPR3PL(n.Condition), ToOriginalPR3PL(n.Consequence), alt)
+	return fmt.Sprintf("(iflesser (0) %s\n%s%s\n%s%s)",
+		toPR3PL(n.Condition, depth),
+		indent(depth+1), toPR3PL(n.Consequence, depth+1),
+		indent(depth+1), alt)
 }

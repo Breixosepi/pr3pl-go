@@ -72,7 +72,7 @@ func runSource(input string) {
 	if errFile != nil {
 		fmt.Printf("%sError generating transpilation file: %v%s\n", ColorRed, errFile, ColorReset)
 	} else {
-		fmt.Printf("\n%ttranspilation saved in'transpiled.txt' %s\n", ColorGreen, ColorReset)
+		fmt.Printf("\n%stranspilation saved in'transpiled.txt' %s\n", ColorGreen, ColorReset)
 	}
 
 	typeResult, err := semantic.TypeCheck(program, staticEnv)

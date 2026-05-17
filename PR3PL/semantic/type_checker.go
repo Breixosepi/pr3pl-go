@@ -95,23 +95,23 @@ func typeCheckInfixExpression(node *ast.InfixExpression, env *Environment) (Type
 	switch node.Operator {
 	case "+", "-", "*", "/", "%":
 		if leftType.Signature() != "int" || rightType.Signature() != "int" {
-			return nil, fmt.Errorf("TypeError: %s requiere int, obtuvo %s y %s", node.Operator, leftType.Signature(), rightType.Signature())
+			return nil, fmt.Errorf("(Línea %d, Columna %d) TypeError: %s requiere int, obtuvo %s y %s", node.Token.Line, node.Token.Column, node.Operator, leftType.Signature(), rightType.Signature())
 		}
 		return &IntType{}, nil
 
 	case "<", ">", "==", "!=":
 		if leftType.Signature() != "int" || rightType.Signature() != "int" {
-			return nil, fmt.Errorf("TypeError: %s requiere int", node.Operator)
+			return nil, fmt.Errorf("(Línea %d, Columna %d) TypeError: %s requiere int", node.Token.Line, node.Token.Column, node.Operator)
 		}
 		return &BoolType{}, nil
 
 	case "and", "or":
 		if leftType.Signature() != "bool" || rightType.Signature() != "bool" {
-			return nil, fmt.Errorf("TypeError: %s requiere bool", node.Operator)
+			return nil, fmt.Errorf("(Línea %d, Columna %d) TypeError: %s requiere bool", node.Token.Line, node.Token.Column, node.Operator)
 		}
 		return &BoolType{}, nil
 	}
-	return nil, fmt.Errorf("operador desconocido %s", node.Operator)
+	return nil, fmt.Errorf("(Línea %d, Columna %d) operador desconocido %s", node.Token.Line, node.Token.Column, node.Operator)
 }
 
 func typeCheckPrefixExpression(node *ast.PrefixExpression, env *Environment) (Type, error) {
@@ -124,16 +124,16 @@ func typeCheckPrefixExpression(node *ast.PrefixExpression, env *Environment) (Ty
 	switch node.Operator {
 	case "-":
 		if rightType.Signature() != "int" {
-			return nil, fmt.Errorf("TypeError: negación requiere int")
+			return nil, fmt.Errorf("(Línea %d, Columna %d) TypeError: negación requiere int", node.Token.Line, node.Token.Column)
 		}
 		return &IntType{}, nil
 	case "not":
 		if rightType.Signature() != "bool" {
-			return nil, fmt.Errorf("TypeError: not requiere bool")
+			return nil, fmt.Errorf("(Línea %d, Columna %d) TypeError: not requiere bool", node.Token.Line, node.Token.Column)
 		}
 		return &BoolType{}, nil
 	}
-	return nil, fmt.Errorf("operador desconocido %s", node.Operator)
+	return nil, fmt.Errorf("(Línea %d, Columna %d) operador desconocido %s", node.Token.Line, node.Token.Column, node.Operator)
 }
 
 func typeCheckIdentifier(node *ast.Identifier, env *Environment) (Type, error) {
@@ -141,7 +141,7 @@ func typeCheckIdentifier(node *ast.Identifier, env *Environment) (Type, error) {
 	if val, ok := env.Get(node.Value); ok {
 		return val, nil
 	}
-	return nil, fmt.Errorf("NotFoundError: la variable %s no existe", node.Value)
+	return nil, fmt.Errorf("(Línea %d, Columna %d) NotFoundError: la variable %s no existe", node.Token.Line, node.Token.Column, node.Value)
 }
 
 func typeCheckValStatement(node *ast.ValStatement, env *Environment) (Type, error) {
@@ -191,7 +191,7 @@ func typeCheckCallExpression(node *ast.CallExpression, env *Environment) (Type, 
 
 	closure, ok := funcType.(*ClosureType)
 	if !ok {
-		return nil, fmt.Errorf("TypeError: call aplicado a un no-closure")
+		return nil, fmt.Errorf("(Línea %d, Columna %d) TypeError: call aplicado a un no-closure", node.Token.Line, node.Token.Column)
 	}
 
 	argType, err := TypeCheck(node.Argument, env)
@@ -243,7 +243,7 @@ func typeCheckIfExpression(node *ast.IfExpression, env *Environment) (Type, erro
 	}
 
 	if condType.Signature() != "bool" {
-		return nil, fmt.Errorf("TypeError: la condicion del if debe ser booleana , got %s", condType.Signature())
+		return nil, fmt.Errorf("(Línea %d, Columna %d) TypeError: la condicion del if debe ser booleana , got %s", node.Token.Line, node.Token.Column, condType.Signature())
 	}
 
 	consType, err := TypeCheck(node.Consequence, env)
@@ -258,7 +258,7 @@ func typeCheckIfExpression(node *ast.IfExpression, env *Environment) (Type, erro
 		}
 
 		if !areTypesCompatible(consType, altType) {
-			return nil, fmt.Errorf("TypeError: discrepancia de tipos en condicional. Ramas devuelven %s y %s", consType.Signature(), altType.Signature())
+			return nil, fmt.Errorf("(Línea %d, Columna %d) TypeError: discrepancia de tipos en condicional. Ramas devuelven %s y %s", node.Token.Line, node.Token.Column, consType.Signature(), altType.Signature())
 		}
 
 		if strings.HasPrefix(consType.Signature(), "(") {
@@ -297,7 +297,7 @@ func typeCheckFstExpression(node *ast.FstExpression, env *Environment) (Type, er
 		if argType.Signature() == "int" || argType.Signature() == "unit" {
 			return &IntType{}, nil
 		}
-		return nil, fmt.Errorf("TypeError: el operador fst requiere un operando PairType, se obtuvo %s", argType.Signature())
+		return nil, fmt.Errorf("(Línea %d, Columna %d) TypeError: el operador fst requiere un operando PairType, se obtuvo %s", node.Token.Line, node.Token.Column, argType.Signature())
 	}
 	return pair.First, nil
 }
@@ -314,7 +314,7 @@ func typeCheckSndExpression(node *ast.SndExpression, env *Environment) (Type, er
 		if argType.Signature() == "int" || argType.Signature() == "unit" {
 			return &IntType{}, nil
 		}
-		return nil, fmt.Errorf("TypeError: el operador snd requiere un operando PairType, se obtuvo %s", argType.Signature())
+		return nil, fmt.Errorf("(Línea %d, Columna %d) TypeError: el operador snd requiere un operando PairType, se obtuvo %s", node.Token.Line, node.Token.Column, argType.Signature())
 	}
 	return pair.Second, nil
 }

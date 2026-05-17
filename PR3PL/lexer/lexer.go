@@ -3,6 +3,7 @@ package lexer
 import (
 	"fmt"
 	"pr3pl/token"
+	"strings"
 	"unicode/utf8"
 )
 
@@ -21,6 +22,7 @@ type Lexer struct {
 }
 
 func New(name, input string) *Lexer {
+
 	l := &Lexer{
 		name:   name,
 		input:  input,
@@ -30,14 +32,25 @@ func New(name, input string) *Lexer {
 	return l
 }
 
+func (l *Lexer) getLineAndCol(pos int) (int, int) {
+
+	text := l.input[:pos]
+	line := strings.Count(text, "\n") + 1
+	lastNL := strings.LastIndex(text, "\n")
+	col := pos - lastNL
+	return line, col
+}
+
 func (l *Lexer) NextToken() token.Token {
+
 	for {
 		select {
 		case tok := <-l.tokens:
 			return tok
 		default:
 			if l.state == nil {
-				return token.Token{Type: token.EOF, Literal: ""}
+				line, col := l.getLineAndCol(l.pos)
+				return token.Token{Type: token.EOF, Literal: "", Line: line, Column: col}
 			}
 			l.state = l.state(l)
 		}
@@ -45,14 +58,20 @@ func (l *Lexer) NextToken() token.Token {
 }
 
 func (l *Lexer) emit(t token.TokenType) {
+
+	line, col := l.getLineAndCol(l.start)
+
 	l.tokens <- token.Token{
 		Type:    t,
 		Literal: l.input[l.start:l.pos],
+		Line:    line,
+		Column:  col,
 	}
 	l.start = l.pos
 }
 
 func (l *Lexer) next() rune {
+
 	if l.pos >= len(l.input) {
 		l.width = 0
 		return eof
@@ -72,15 +91,21 @@ func (l *Lexer) backup() {
 }
 
 func (l *Lexer) peek() rune {
+
 	r := l.next()
 	l.backup()
 	return r
 }
 
 func (l *Lexer) errorf(format string, args ...interface{}) stateFn {
+
+	line, col := l.getLineAndCol(l.start)
+
 	l.tokens <- token.Token{
 		Type:    token.ILLEGAL,
 		Literal: fmt.Sprintf(format, args...),
+		Line:    line,
+		Column:  col,
 	}
 	return nil
 }

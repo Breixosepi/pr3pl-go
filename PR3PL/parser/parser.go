@@ -115,7 +115,8 @@ func (p *Parser) expectPeek(t token.TokenType) bool {
 }
 
 func (p *Parser) peekError(t token.TokenType) {
-	msg := fmt.Sprintf("se esperaba que el siguiente token fuera %v, pero se obtuvo %v", t, p.peekToken.Type)
+	msg := fmt.Sprintf("(Línea %d, Columna %d) se esperaba que el siguiente token fuera %v, pero se obtuvo %v",
+		p.peekToken.Line, p.peekToken.Column, t, p.peekToken.Type)
 	p.errors = append(p.errors, msg)
 }
 
@@ -196,9 +197,11 @@ func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
 }
 
 func (p *Parser) parseExpression(precedence int) ast.Expression {
+
 	prefix := p.prefixParseFns[p.curToken.Type]
 	if prefix == nil {
-		msg := fmt.Sprintf("no se encontró función de prefijo para el token %q", p.curToken.Literal)
+		msg := fmt.Sprintf("(Línea %d, Columna %d) no se encontró función de prefijo para el token %q",
+			p.curToken.Line, p.curToken.Column, p.curToken.Literal)
 		p.errors = append(p.errors, msg)
 		return nil
 	}
@@ -222,11 +225,13 @@ func (p *Parser) parseIdentifier() ast.Expression {
 }
 
 func (p *Parser) parseIntegerLiteral() ast.Expression {
+
 	lit := &ast.IntegerLiteral{Token: p.curToken}
 
 	value, err := strconv.ParseInt(p.curToken.Literal, 0, 64)
 	if err != nil {
-		msg := fmt.Sprintf("no se pudo parsear %q como entero", p.curToken.Literal)
+		msg := fmt.Sprintf("(Línea %d, Columna %d) no se pudo parsear %q como entero",
+			p.curToken.Line, p.curToken.Column, p.curToken.Literal)
 		p.errors = append(p.errors, msg)
 		return nil
 	}
