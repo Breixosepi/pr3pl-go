@@ -1,36 +1,36 @@
 /* 1. Variable global */
-
 val x = 100
 
-/* 2. Primer nivel de Shadowing con let
-el 'x' interno deberia solapar el externo */
-
-val result1 = let x = 10 in
-    x + 5           /* 15 (x local) */
-end
+/* 2. Primer nivel de Shadowing con let */
+val result1 = 
+    let x = 10 in
+        x + 5           
+    end
 
 /* 3. Scopes */ 
-
-val result2 = let y = 20 in
-    let x = 50 in
-        x + y       /* 70 */
+val result2 = 
+    let y = 20 in
+        let x = 50 in
+            x + y           
+        end
     end
-end
 
-/* 4. Deep Shadowing */
-
-val finalBoss = let x = 1 in
-    let x = 2 in
-        let x = 3 in
-            let x = 4 in
-                x       /* 4 */
+/* 4. Deep Shadowing (La escalera) */
+val finalBoss = 
+    let x = 1 in
+        let x = 2 in
+            let x = 3 in
+                let x = 4 in
+                    x               
+                end
             end
         end
     end
-end
 
 /* 5. Integración final */
-
 val check = (x == 100) and (result1 == 15) and (result2 == 70) and (finalBoss == 4)
 
-if check then x + result1 + result2 + finalBoss else 0  /* 100 + 15 + 70 + 4 (es decir 189) */
+if check then 
+    x + result1 + result2 + finalBoss   /* 100 + 15 + 70 + 4 = 189 */
+else 
+    0

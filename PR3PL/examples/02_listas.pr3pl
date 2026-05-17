@@ -23,16 +23,10 @@ val isEnd = isunit(snd(snd(snd(testList))))   /* true */
 
 val listSum = theHundred + theTwoHundred + theThreeHundred /* 600 */
 
-val finalResult = if isEnd and (listSum == 600) 
-then listSum / 2 else 0
+val finalResult = 
+    if isEnd and (listSum == 600) then 
+        listSum / 2 
+    else 
+        0
+
 finalResult   /* 300 */
-
-
-
-
-
-
-
-
-
-

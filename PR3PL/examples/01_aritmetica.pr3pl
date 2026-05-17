@@ -17,8 +17,12 @@ val finalBoss = (isP1Greater and isP2Equal) and (isDifferent or (p1 < 0))  /* tr
 
 /* 4. Verificacion de seguridad */
 
-val finalTest = if finalBoss then p2 + p4 else 0 /* true */
+val finalTest = 
+    if finalBoss then 
+        p2 + p4 
+    else 
+        0 
 
 /* 5. Retornar el valor final */
 
-finalTest       /* 40 (30 + 10) */
+finalTest     /* 40 (30 + 10) */
