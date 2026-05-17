@@ -4,8 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	"strings"
-
 	"pr3pl/evaluator"
 	"pr3pl/lexer"
 	"pr3pl/object"
@@ -13,8 +11,15 @@ import (
 	"pr3pl/semantic"
 )
 
-const PROMPT = ">> "
-const MULTILINE_PROMPT = ".. "
+const PROMPT = "Input: "
+
+const (
+	ColorReset  = "\033[0m"
+	ColorRed    = "\033[31m"
+	ColorGreen  = "\033[32m"
+	ColorYellow = "\033[33m"
+	ColorBlue   = "\033[34m"
+)
 
 func Start(in io.Reader, out io.Writer) {
 
@@ -22,30 +27,23 @@ func Start(in io.Reader, out io.Writer) {
 	staticEnv := semantic.NewEnvironment()
 	dynamicEnv := object.NewEnvironment()
 
+	fmt.Fprintf(out, "%sCommand Line Interface for PR3PL (Go Version)%s\n", ColorBlue, ColorReset)
+	fmt.Fprintf(out, "If you want to quit, type exit and press enter or press ctrl+C\n\n")
+
 	for {
-		fmt.Fprintf(out, PROMPT)
 
-		var inputBuffer strings.Builder
-
-		for scanner.Scan() {
-			line := scanner.Text()
-			if line == "" {
-				break
-			}
-			inputBuffer.WriteString(line)
-			inputBuffer.WriteString("\n")
-			fmt.Fprintf(out, MULTILINE_PROMPT)
-		}
-
-		if err := scanner.Err(); err != nil {
+		fmt.Fprintf(out, "%s%s%s", ColorGreen, PROMPT, ColorReset)
+		scanned := scanner.Scan()
+		if !scanned {
 			return
 		}
 
-		if inputBuffer.Len() == 0 {
-			continue
+		line := scanner.Text()
+		if line == "exit" {
+			return
 		}
 
-		l := lexer.New("repl", inputBuffer.String())
+		l := lexer.New("repl", line)
 		p := parser.New(l)
 		program := p.ParseProgram()
 
@@ -56,28 +54,24 @@ func Start(in io.Reader, out io.Writer) {
 
 		typeResult, err := semantic.TypeCheck(program, staticEnv)
 		if err != nil {
-			io.WriteString(out, "Error de Tipos (Semántico):\n\t"+err.Error()+"\n")
+			fmt.Fprintf(out, "%s-------------------------------------------------------------------------------%s\n", ColorRed, ColorReset)
+			fmt.Fprintf(out, "%sType error: %s%s\n\n", ColorRed, err.Error(), ColorReset)
 			continue
 		}
 
-		func() {
-			defer func() {
-				if r := recover(); r != nil {
-					io.WriteString(out, fmt.Sprintf("Error de Ejecución (Runtime):\n\t%v\n", r))
-				}
-			}()
-
-			evalResult := evaluator.Eval(program, dynamicEnv)
-			if evalResult != nil {
-				io.WriteString(out, fmt.Sprintf("Tipo: %s\nResultado: %s\n", typeResult.Signature(), evalResult.Inspect()))
-			}
-		}()
+		result := evaluator.Eval(program, dynamicEnv)
+		if result != nil {
+			fmt.Fprintf(out, "%sType: %s%s\n", ColorYellow, typeResult.Signature(), ColorReset)
+			fmt.Fprintf(out, "%sOutput: %s%s\n\n", ColorBlue, result.Inspect(), ColorReset)
+		}
 	}
 }
 
 func printParserErrors(out io.Writer, errors []string) {
-	io.WriteString(out, "Se encontraron errores de sintaxis:\n")
+	fmt.Fprintf(out, "%s-------------------------------------------------------------------------------%s\n", ColorRed, ColorReset)
+	fmt.Fprintf(out, "%sSyntax errors:%s\n", ColorRed, ColorReset)
 	for _, msg := range errors {
-		io.WriteString(out, "\t"+msg+"\n")
+		fmt.Fprintf(out, "%s\t%s%s\n", ColorRed, msg, ColorReset)
 	}
+	fmt.Fprintf(out, "\n")
 }
