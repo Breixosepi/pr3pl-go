@@ -76,11 +76,19 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 
 	case *ast.FstExpression:
 		val := Eval(node.Argument, env)
-		return val.(*object.Pair).Left
+		par, ok := val.(*object.Pair)
+		if !ok {
+			panic("TypeError: el operador fst requiere un operando de tipo Pair")
+		}
+		return par.Left
 
 	case *ast.SndExpression:
 		val := Eval(node.Argument, env)
-		return val.(*object.Pair).Right
+		par, ok := val.(*object.Pair)
+		if !ok {
+			panic("TypeError: el operador Snd requiere un operando de tipo Pair")
+		}
+		return par.Right
 
 	case *ast.IsUnitExpression:
 		val := Eval(node.Argument, env)
