@@ -53,7 +53,3 @@ Asegúrate de tener [Go](https://golang.org/dl/) instalado en tu sistema.
 3. **Iniciar la consola interactiva (REPL):**
    ```bash
    go run main.go
-
-4. **Iniciar la consola interactiva (REPL):**
-    ```bash
-   go test ./...
